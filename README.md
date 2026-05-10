@@ -67,3 +67,28 @@ Useful deployment checks:
 curl https://your-vercel-domain.vercel.app/api/health
 curl https://your-vercel-domain.vercel.app/api/env-check
 ```
+
+## GitHub App Webhook
+
+Set this URL in the GitHub App webhook settings after deploying:
+
+```bash
+https://your-vercel-domain.vercel.app/api/github/webhook
+```
+
+Use the same secret in GitHub and in Vercel:
+
+```bash
+GITHUB_WEBHOOK_SECRET=<your-random-webhook-secret>
+```
+
+Recommended beta events:
+
+- `ping`
+- `installation`
+- `installation_repositories`
+- `push`
+- `issues`
+- `pull_request`
+
+The webhook route verifies `X-Hub-Signature-256` before accepting events.
