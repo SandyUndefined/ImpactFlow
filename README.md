@@ -40,6 +40,7 @@ Check local configuration without exposing secret values:
 
 ```bash
 curl http://localhost:3000/api/env-check
+curl http://localhost:3000/api/supabase/status
 ```
 
 ## Deploy to Vercel
@@ -66,6 +67,7 @@ Useful deployment checks:
 ```bash
 curl https://your-vercel-domain.vercel.app/api/health
 curl https://your-vercel-domain.vercel.app/api/env-check
+curl https://your-vercel-domain.vercel.app/api/supabase/status
 ```
 
 ## GitHub App Webhook
