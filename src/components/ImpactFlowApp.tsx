@@ -85,6 +85,13 @@ export function ImpactFlowApp() {
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
 
+    if (!supabase) {
+      setError(
+        "Google login is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel, then redeploy.",
+      );
+      return;
+    }
+
     supabase.auth.getSession().then(({ data }) => {
       const email = data.session?.user.email ?? null;
       setUserEmail(email);
@@ -112,6 +119,14 @@ export function ImpactFlowApp() {
     setError(null);
 
     const supabase = createSupabaseBrowserClient();
+
+    if (!supabase) {
+      setError(
+        "Google login is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel, then redeploy.",
+      );
+      return;
+    }
+
     const { error: loginError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -130,6 +145,14 @@ export function ImpactFlowApp() {
 
   async function logout() {
     const supabase = createSupabaseBrowserClient();
+
+    if (!supabase) {
+      setUserEmail(null);
+      setStep("login");
+      setReport(null);
+      return;
+    }
+
     await supabase.auth.signOut();
     setUserEmail(null);
     setStep("login");
