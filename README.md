@@ -120,6 +120,18 @@ http://localhost:3000/auth/callback
 https://your-vercel-domain.vercel.app/auth/callback
 ```
 
+For this project, your production callback should be:
+
+```bash
+https://impact-flow-neon.vercel.app/auth/callback
+```
+
+Do not put the Supabase provider callback URL in the Supabase Redirect URLs list. This URL belongs in Google Cloud only:
+
+```bash
+https://<your-supabase-project-ref>.supabase.co/auth/v1/callback
+```
+
 Configure Google Cloud:
 
 1. Google Cloud Console -> APIs & Services -> OAuth consent screen
@@ -138,6 +150,12 @@ https://your-vercel-domain.vercel.app
 
 ```bash
 https://<your-supabase-project-ref>.supabase.co/auth/v1/callback
+```
+
+For your current Supabase project, that Google Cloud redirect URI is:
+
+```bash
+https://lkmdzvtefrqzavcuzjif.supabase.co/auth/v1/callback
 ```
 
 Then paste the Google OAuth client ID and secret into:
