@@ -75,6 +75,24 @@ Vercel Web Analytics and Speed Insights are installed at the root layout. After 
 
 ## GitHub App Webhook
 
+Set this URL in the GitHub App setup settings after deploying:
+
+```bash
+https://your-vercel-domain.vercel.app/github/setup
+```
+
+Set this browser-safe install URL locally and in Vercel:
+
+```bash
+NEXT_PUBLIC_GITHUB_APP_INSTALL_URL=https://github.com/apps/<your-github-app-slug>/installations/new
+```
+
+For this project, the production setup URL should be:
+
+```bash
+https://impact-flow-neon.vercel.app/github/setup
+```
+
 Set this URL in the GitHub App webhook settings after deploying:
 
 ```bash

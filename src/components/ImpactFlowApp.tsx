@@ -76,11 +76,22 @@ export function ImpactFlowApp() {
   const [activeTab, setActiveTab] = useState<ReportTab>("summary");
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [githubConnected, setGithubConnected] = useState(false);
 
   const selectedRepo = useMemo(
     () => repositories.find((repo) => repo.id === selectedRepoId) ?? repositories[0],
     [selectedRepoId],
   );
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+
+    if (searchParams.get("github") === "connected") {
+      setGithubConnected(true);
+      setStep("repo");
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
@@ -157,6 +168,27 @@ export function ImpactFlowApp() {
     setUserEmail(null);
     setStep("login");
     setReport(null);
+    setGithubConnected(false);
+  }
+
+  function connectGithub() {
+    setError(null);
+
+    if (!userEmail) {
+      setError("Sign in with Google before connecting GitHub.");
+      return;
+    }
+
+    const installUrl = process.env.NEXT_PUBLIC_GITHUB_APP_INSTALL_URL;
+
+    if (!installUrl) {
+      setError(
+        "GitHub App install URL is missing. Add NEXT_PUBLIC_GITHUB_APP_INSTALL_URL in Vercel and redeploy.",
+      );
+      return;
+    }
+
+    window.location.assign(installUrl);
   }
 
   async function runAnalysis() {
@@ -289,7 +321,8 @@ export function ImpactFlowApp() {
             <ControlPanel
               error={error}
               onAnalyze={runAnalysis}
-              onConnectGithub={() => setStep("repo")}
+              githubConnected={githubConnected}
+              onConnectGithub={connectGithub}
               onLogin={loginWithGoogle}
               onLogout={logout}
               onSelectRepo={setSelectedRepoId}
@@ -337,6 +370,7 @@ export function ImpactFlowApp() {
 
 function ControlPanel({
   error,
+  githubConnected,
   onAnalyze,
   onConnectGithub,
   onLogin,
@@ -348,6 +382,7 @@ function ControlPanel({
   userEmail,
 }: {
   error: string | null;
+  githubConnected: boolean;
   onAnalyze: () => void;
   onConnectGithub: () => void;
   onLogin: () => void;
@@ -401,10 +436,16 @@ function ControlPanel({
               {userEmail}
             </div>
           ) : null}
-          <Button disabled={step !== "github"} onClick={onConnectGithub} variant="secondary">
+          <Button disabled={!userEmail || step === "analyzing"} onClick={onConnectGithub} variant="secondary">
             <Github />
-            Connect GitHub
+            {githubConnected ? "Reconnect GitHub" : "Connect GitHub"}
           </Button>
+          {githubConnected ? (
+            <div className="flex items-center gap-2 rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-800">
+              <Check className="size-4" />
+              GitHub connected
+            </div>
+          ) : null}
           <Button disabled={step !== "repo" && step !== "report"} onClick={onAnalyze}>
             <Play />
             Analyze
@@ -422,6 +463,11 @@ function ControlPanel({
             <AlertTriangle className="size-4" />
             {error}
           </div>
+        ) : null}
+        {!userEmail ? (
+          <p className="text-sm text-slate-500">
+            Sign in with Google first, then connect GitHub.
+          </p>
         ) : null}
       </CardContent>
     </Card>

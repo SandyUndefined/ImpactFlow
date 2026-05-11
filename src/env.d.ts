@@ -8,6 +8,7 @@ declare namespace NodeJS {
     SUPABASE_SERVICE_ROLE_KEY?: string;
     SUPABASE_STORAGE_BUCKET?: string;
     DATABASE_URL?: string;
+    NEXT_PUBLIC_GITHUB_APP_INSTALL_URL?: string;
     GITHUB_CLIENT_ID?: string;
     GITHUB_CLIENT_SECRET?: string;
     GITHUB_APP_ID?: string;

@@ -25,6 +25,7 @@ export const envGroups = {
   github: {
     description: "OAuth login, repository access, webhooks, and issue creation.",
     keys: [
+      "NEXT_PUBLIC_GITHUB_APP_INSTALL_URL",
       "GITHUB_CLIENT_ID",
       "GITHUB_CLIENT_SECRET",
       "GITHUB_APP_ID",
