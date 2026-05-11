@@ -71,6 +71,8 @@ curl https://your-vercel-domain.vercel.app/api/env-check
 curl https://your-vercel-domain.vercel.app/api/supabase/status
 ```
 
+Vercel Web Analytics and Speed Insights are installed at the root layout. After deployment, visit the site and navigate between pages to collect the first page-view and performance data points.
+
 ## GitHub App Webhook
 
 Set this URL in the GitHub App webhook settings after deploying:
