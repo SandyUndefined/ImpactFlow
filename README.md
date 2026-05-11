@@ -146,6 +146,8 @@ For this project, your production callback should be:
 https://impact-flow-neon.vercel.app/auth/callback
 ```
 
+If Supabase sends users to `localhost:3000` after production login, update the Site URL to the production URL and save the change. Localhost should only be an allowed Redirect URL, not the production Site URL.
+
 Do not put the Supabase provider callback URL in the Supabase Redirect URLs list. This URL belongs in Google Cloud only:
 
 ```bash

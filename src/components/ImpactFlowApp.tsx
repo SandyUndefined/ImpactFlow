@@ -85,10 +85,20 @@ export function ImpactFlowApp() {
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
+    const authError =
+      searchParams.get("auth_error") ??
+      searchParams.get("error_description") ??
+      searchParams.get("error");
 
     if (searchParams.get("github") === "connected") {
       setGithubConnected(true);
       setStep("repo");
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return;
+    }
+
+    if (authError) {
+      setError(authError.replaceAll("+", " "));
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
