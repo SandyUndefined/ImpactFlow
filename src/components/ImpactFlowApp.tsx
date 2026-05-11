@@ -11,12 +11,13 @@ import {
   GitBranch,
   Github,
   KeyRound,
+  LogOut,
   Loader2,
   Play,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   type AnalysisReport,
@@ -33,6 +34,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 const reportTabs = [
@@ -68,6 +70,7 @@ const progressByStep: Record<WorkflowStep, number> = {
 
 export function ImpactFlowApp() {
   const [step, setStep] = useState<WorkflowStep>("login");
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [selectedRepoId, setSelectedRepoId] = useState(repositories[0].id);
   const [report, setReport] = useState<AnalysisReport | null>(null);
   const [activeTab, setActiveTab] = useState<ReportTab>("summary");
@@ -78,6 +81,60 @@ export function ImpactFlowApp() {
     () => repositories.find((repo) => repo.id === selectedRepoId) ?? repositories[0],
     [selectedRepoId],
   );
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+
+    supabase.auth.getSession().then(({ data }) => {
+      const email = data.session?.user.email ?? null;
+      setUserEmail(email);
+
+      if (email) {
+        setStep((currentStep) => (currentStep === "login" ? "github" : currentStep));
+      }
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      const email = session?.user.email ?? null;
+      setUserEmail(email);
+
+      if (email) {
+        setStep((currentStep) => (currentStep === "login" ? "github" : currentStep));
+      }
+    });
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  async function loginWithGoogle() {
+    setError(null);
+
+    const supabase = createSupabaseBrowserClient();
+    const { error: loginError } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=/`,
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
+      },
+    });
+
+    if (loginError) {
+      setError(loginError.message);
+    }
+  }
+
+  async function logout() {
+    const supabase = createSupabaseBrowserClient();
+    await supabase.auth.signOut();
+    setUserEmail(null);
+    setStep("login");
+    setReport(null);
+  }
 
   async function runAnalysis() {
     setStep("analyzing");
@@ -210,11 +267,13 @@ export function ImpactFlowApp() {
               error={error}
               onAnalyze={runAnalysis}
               onConnectGithub={() => setStep("repo")}
-              onLogin={() => setStep("github")}
+              onLogin={loginWithGoogle}
+              onLogout={logout}
               onSelectRepo={setSelectedRepoId}
               repositories={repositories}
               selectedRepo={selectedRepo}
               step={step}
+              userEmail={userEmail}
             />
 
             <Card>
@@ -258,19 +317,23 @@ function ControlPanel({
   onAnalyze,
   onConnectGithub,
   onLogin,
+  onLogout,
   onSelectRepo,
   repositories,
   selectedRepo,
   step,
+  userEmail,
 }: {
   error: string | null;
   onAnalyze: () => void;
   onConnectGithub: () => void;
   onLogin: () => void;
+  onLogout: () => void;
   onSelectRepo: (repoId: string) => void;
   repositories: Repository[];
   selectedRepo: Repository;
   step: WorkflowStep;
+  userEmail: string | null;
 }) {
   return (
     <Card>
@@ -305,10 +368,16 @@ function ControlPanel({
         </div>
 
         <div className="flex flex-wrap items-center gap-3 border-t border-slate-200 pt-4">
-          <Button disabled={step !== "login"} onClick={onLogin}>
+          <Button disabled={step !== "login" || Boolean(userEmail)} onClick={onLogin}>
             <KeyRound />
-            Login
+            Continue with Google
           </Button>
+          {userEmail ? (
+            <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+              <Check className="size-4" />
+              {userEmail}
+            </div>
+          ) : null}
           <Button disabled={step !== "github"} onClick={onConnectGithub} variant="secondary">
             <Github />
             Connect GitHub
@@ -317,6 +386,12 @@ function ControlPanel({
             <Play />
             Analyze
           </Button>
+          {userEmail ? (
+            <Button onClick={onLogout} variant="ghost">
+              <LogOut />
+              Sign out
+            </Button>
+          ) : null}
         </div>
 
         {error ? (

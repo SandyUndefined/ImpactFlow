@@ -18,6 +18,10 @@ export const envGroups = {
       "DATABASE_URL",
     ],
   },
+  analytics: {
+    description: "Google Analytics page and engagement measurement.",
+    keys: ["NEXT_PUBLIC_GA_MEASUREMENT_ID"],
+  },
   github: {
     description: "OAuth login, repository access, webhooks, and issue creation.",
     keys: [

@@ -31,10 +31,11 @@ The first real integration should fill these groups in order:
 
 1. App URLs: `APP_URL`, `NEXT_PUBLIC_APP_URL`
 2. Supabase: auth, database, service role, storage bucket
-3. GitHub: OAuth/App credentials and webhook secret
-4. AI providers: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`
-5. Queue: `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY`
-6. Stripe: publishable key, secret key, webhook secret
+3. Google Analytics: `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+4. GitHub: OAuth/App credentials and webhook secret
+5. AI providers: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`
+6. Queue: `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY`
+7. Stripe: publishable key, secret key, webhook secret
 
 Check local configuration without exposing secret values:
 
@@ -94,3 +95,67 @@ Recommended beta events:
 - `pull_request`
 
 The webhook route verifies `X-Hub-Signature-256` before accepting events.
+
+## Google Login
+
+Google login is implemented through Supabase Auth. The app redirects users to Google with:
+
+```bash
+/auth/callback?next=/
+```
+
+Configure Supabase:
+
+1. Supabase Dashboard -> Authentication -> URL Configuration
+2. Site URL:
+
+```bash
+https://your-vercel-domain.vercel.app
+```
+
+3. Redirect URLs:
+
+```bash
+http://localhost:3000/auth/callback
+https://your-vercel-domain.vercel.app/auth/callback
+```
+
+Configure Google Cloud:
+
+1. Google Cloud Console -> APIs & Services -> OAuth consent screen
+2. Set the app name to `ImpactFlow`
+3. Add scopes: `openid`, email, profile
+4. Google Cloud Console -> APIs & Services -> Credentials -> Create OAuth client ID
+5. Application type: Web application
+6. Authorized JavaScript origins:
+
+```bash
+http://localhost:3000
+https://your-vercel-domain.vercel.app
+```
+
+7. Authorized redirect URI:
+
+```bash
+https://<your-supabase-project-ref>.supabase.co/auth/v1/callback
+```
+
+Then paste the Google OAuth client ID and secret into:
+
+```bash
+Supabase Dashboard -> Authentication -> Providers -> Google
+```
+
+No Google OAuth client secret is needed in this Next.js app when Supabase manages the provider.
+
+## Google Analytics
+
+Create a GA4 Web Data Stream and copy the measurement ID. It starts with `G-`.
+
+Add this locally and in Vercel:
+
+```bash
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+```
+
+Analytics is loaded from the root layout with `@next/third-parties/google`.
