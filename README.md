@@ -195,7 +195,7 @@ Create a GA4 Web Data Stream and copy the measurement ID. It starts with `G-`.
 Add this locally and in Vercel:
 
 ```bash
-NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-X6YYCNXQWT
 ```
 
 Analytics is loaded from the root layout with `@next/third-parties/google`.

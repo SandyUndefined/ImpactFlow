@@ -11,6 +11,9 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+const googleAnalyticsId =
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-X6YYCNXQWT";
+
 export const metadata: Metadata = {
   title: "ImpactFlow",
   description: "AI repo analysis workflow for SaaS teams.",
@@ -27,9 +30,7 @@ export default function RootLayout({
         {children}
         <Analytics />
         <SpeedInsights />
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ? (
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
-        ) : null}
+        <GoogleAnalytics gaId={googleAnalyticsId} />
       </body>
     </html>
   );
